@@ -1,0 +1,24 @@
+function upload_image_to_wp_from_url($url, $post_id) {
+    include_once( ABSPATH . 'wp-admin/includes/image.php' );
+    $imageurl = $url;
+    $basename = basename($imageurl);
+    $imagetype = end(explode('/', getimagesize($imageurl)['mime']));
+    // $uniq_name = date('dmY').''.(int) microtime(true);
+
+    $without_extension = pathinfo($basename, PATHINFO_FILENAME);
+    $extension = pathinfo($basename, PATHINFO_EXTENSION);
+    if($extension == 'pdf') {
+        $filename = $post_id.'_'.$without_extension.'.pdf';
+    } else {
+        $filename = $post_id.'_'.$without_extension.'.'.$imagetype;
+    }
+
+    $uploaddir = wp_upload_dir();
+    $uploadfile = $uploaddir['path'] . '/' . $filename;
+    $uploadurl = $uploaddir['url'] . '/' . $filename;
+    if (!file_exists($uploadfile)) {
+        $contents = file_get_contents($imageurl);
+        file_put_contents($uploadfile,$contents);
+    }
+    return $uploadurl;
+}
